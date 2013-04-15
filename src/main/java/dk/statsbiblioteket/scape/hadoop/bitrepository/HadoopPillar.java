@@ -80,7 +80,7 @@ public class HadoopPillar implements FileStoreImproved {
     public boolean storeInTemporaryStore(FileID fileID, InputStream inputStream) throws FileAlreadyExistsException, IOException {
         Path finalPath = getPath(archiveDir,fileID);
         Path stagePath = getPath(stageDir,fileID);
-        fileSystem.mkdirs(stageDir);
+        fileSystem.mkdirs(stagePath.getParent());
 
         if (fileSystem.exists(finalPath) || fileSystem.exists(stagePath)){
             throw new FileAlreadyExistsException("File "+fileID+" already exists in the filestore, aborting");

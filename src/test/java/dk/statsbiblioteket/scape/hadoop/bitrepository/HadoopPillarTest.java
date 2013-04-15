@@ -2,6 +2,7 @@ package dk.statsbiblioteket.scape.hadoop.bitrepository;
 
 import org.apache.commons.io.IOUtils;
 import org.hamcrest.CoreMatchers;
+import org.junit.Ignore;
 
 import java.io.ByteArrayInputStream;
 import java.io.FileInputStream;
@@ -74,7 +75,7 @@ public class HadoopPillarTest {
     public void testStoreInTemporaryStore() throws Exception {
         InputStream contents = new ByteArrayInputStream("datafile2".getBytes());
 
-        FileID fileID = new FileID("testColl", "datafile2");
+        FileID fileID = new FileID("datafile2","testColl");
         hadoopPillar.storeInTemporaryStore(fileID,contents);
 
         InputStream readContents = hadoopPillar.getFileContents(fileID);
