@@ -1,16 +1,15 @@
 package dk.statsbiblioteket.scape.hadoop.bitrepository;
 
+import dk.statsbiblioteket.bitrepository.FileAlreadyExistsException;
+import dk.statsbiblioteket.bitrepository.FileID;
+import dk.statsbiblioteket.bitrepository.FileStatus;
 import org.apache.commons.io.IOUtils;
-import org.hamcrest.CoreMatchers;
-import org.junit.Ignore;
 
 import java.io.ByteArrayInputStream;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
-import java.io.StringReader;
 import java.io.StringWriter;
-import java.io.Writer;
+import java.net.URI;
 import java.util.Collection;
 
 import static org.hamcrest.CoreMatchers.is;
@@ -31,7 +30,7 @@ public class HadoopPillarTest {
 
     @org.junit.Before
     public void setUp() throws Exception {
-        hadoopPillar = new HadoopPillar("scape");
+        hadoopPillar = new HadoopPillar("scape",URI.create("target/"));
         testfile = new FileID("testFile","testColl");
         hadoopPillar.storeInTemporaryStore(testfile,Thread.currentThread().getContextClassLoader().getResourceAsStream("datafile1"));
     }

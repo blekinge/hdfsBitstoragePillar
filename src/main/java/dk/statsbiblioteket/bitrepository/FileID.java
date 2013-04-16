@@ -1,4 +1,4 @@
-package dk.statsbiblioteket.scape.hadoop.bitrepository;
+package dk.statsbiblioteket.bitrepository;
 
 /**
  * Created with IntelliJ IDEA.

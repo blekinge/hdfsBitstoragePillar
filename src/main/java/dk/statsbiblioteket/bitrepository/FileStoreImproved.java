@@ -1,4 +1,8 @@
-package dk.statsbiblioteket.scape.hadoop.bitrepository;
+package dk.statsbiblioteket.bitrepository;
+
+import dk.statsbiblioteket.bitrepository.FileAlreadyExistsException;
+import dk.statsbiblioteket.bitrepository.FileID;
+import dk.statsbiblioteket.bitrepository.FileStatus;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -34,7 +38,7 @@ public interface FileStoreImproved {
      * has been validated. Then it should be archived through the 'moveToArchive' method.
      * @param fileID The id of the file to store.
      * @param inputStream The InputStream with the content of the file.
-     * @throws FileAlreadyExistsException if the filename is already used in stage
+     * @throws dk.statsbiblioteket.bitrepository.FileAlreadyExistsException if the filename is already used in stage
      * @throws IOException If anything unexpected occurs (e.g. file already exists, not enough space, etc.)
      * @see #moveToArchive(String)
      */

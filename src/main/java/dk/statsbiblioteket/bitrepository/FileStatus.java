@@ -1,6 +1,4 @@
-package dk.statsbiblioteket.scape.hadoop.bitrepository;
-
-import java.util.Date;
+package dk.statsbiblioteket.bitrepository;
 
 /**
  * Created with IntelliJ IDEA.

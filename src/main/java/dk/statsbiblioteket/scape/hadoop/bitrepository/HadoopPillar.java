@@ -1,11 +1,14 @@
 package dk.statsbiblioteket.scape.hadoop.bitrepository;
 
+import dk.statsbiblioteket.bitrepository.*;
 import org.apache.commons.io.IOUtils;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.*;
+
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collection;
 
@@ -18,19 +21,22 @@ import java.util.Collection;
  */
 public class HadoopPillar implements FileStoreImproved {
 
+    private final Path fileSystemRoot;
     private FileSystem fileSystem;
 
     private final Path stageDir;
     private final Path archiveDir;
-    public HadoopPillar(String user) throws IOException, InterruptedException {
+    public HadoopPillar(String user, URI filesystemDefaultURI ) throws IOException, InterruptedException {
         Configuration conf = new Configuration();
-        fileSystem = FileSystem.get(FileSystem.getDefaultUri(conf), conf, user);
+        fileSystem = FileSystem.get(filesystemDefaultURI, conf, user);
+
+        fileSystemRoot = new Path(filesystemDefaultURI);
         stageDir = new Path("staging");
         archiveDir = new Path("archiving");
     }
 
     private Path getPath(Path dir,FileID fileID){
-        return new Path(fileID.getCollectionID(),new Path(dir,fileID.getFileID()));
+        return new Path(new Path(fileSystemRoot,fileID.getCollectionID()),new Path(dir,fileID.getFileID()));
     }
 
     public InputStream getFileContents(FileID fileID) throws FileNotFoundException, IOException {
@@ -47,7 +53,7 @@ public class HadoopPillar implements FileStoreImproved {
         return fileSystem.open(path);
     }
 
-    public FileStatus getFileStatus(FileID fileID) throws IOException {
+    public dk.statsbiblioteket.bitrepository.FileStatus getFileStatus(FileID fileID) throws IOException {
         Path finalPath = getPath(archiveDir,fileID);
         Path stagePath = getPath(stageDir,fileID);
         Path path;
@@ -63,13 +69,13 @@ public class HadoopPillar implements FileStoreImproved {
         }
 
         org.apache.hadoop.fs.FileStatus hdfsStatus = fileSystem.getFileStatus(path);
-        return new FileStatus(fileID,hdfsStatus.getLen(),archived,hdfsStatus.getModificationTime());
+        return new dk.statsbiblioteket.bitrepository.FileStatus(fileID,hdfsStatus.getLen(),archived,hdfsStatus.getModificationTime());
     }
 
     public Collection<FileID> getAllFileIds(String collectionID) throws IOException {
         ArrayList<FileID> result = new ArrayList<FileID>();
 
-        RemoteIterator<LocatedFileStatus> founds = fileSystem.listFiles(new Path(collectionID), true);
+        RemoteIterator<LocatedFileStatus> founds = fileSystem.listFiles(new Path(fileSystemRoot,collectionID), true);
         while (founds.hasNext()){
             LocatedFileStatus found = founds.next();
             result.add(new FileID(found.getPath().getName(),collectionID));
@@ -77,13 +83,15 @@ public class HadoopPillar implements FileStoreImproved {
         return result;
     }
 
-    public boolean storeInTemporaryStore(FileID fileID, InputStream inputStream) throws FileAlreadyExistsException, IOException {
+    public boolean storeInTemporaryStore(FileID fileID, InputStream inputStream) throws dk.statsbiblioteket.bitrepository.FileAlreadyExistsException, IOException {
         Path finalPath = getPath(archiveDir,fileID);
         Path stagePath = getPath(stageDir,fileID);
+
+
         fileSystem.mkdirs(stagePath.getParent());
 
         if (fileSystem.exists(finalPath) || fileSystem.exists(stagePath)){
-            throw new FileAlreadyExistsException("File "+fileID+" already exists in the filestore, aborting");
+            throw new dk.statsbiblioteket.bitrepository.FileAlreadyExistsException("File "+fileID+" already exists in the filestore, aborting");
         }
         FSDataOutputStream stageFile = fileSystem.create(stagePath);
         IOUtils.copyLarge(inputStream,stageFile);
@@ -96,7 +104,7 @@ public class HadoopPillar implements FileStoreImproved {
         Path finalPath = getPath(archiveDir,fileID);
         Path stagePath = getPath(stageDir,fileID);
         if (fileSystem.exists(finalPath)){
-            throw new FileAlreadyExistsException("File "+fileID+" already exists in the filestore, aborting");
+            throw new dk.statsbiblioteket.bitrepository.FileAlreadyExistsException("File "+fileID+" already exists in the filestore, aborting");
         }
         if (!fileSystem.exists(stagePath)){
             throw new FileNotFoundException("File "+fileID+" does not exist in the filestore, aborting");
