@@ -1,10 +1,9 @@
 package dk.statsbiblioteket.scape.hadoop.bitrepository;
 
-import dk.statsbiblioteket.bitrepository.Processing;
+import dk.statsbiblioteket.bitrepository.processing.BitrepoTool;
+import dk.statsbiblioteket.bitrepository.processing.Processing;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.security.UserGroupInformation;
-import org.apache.hadoop.util.Tool;
-import org.apache.hadoop.util.ToolRunner;
 
 import java.io.File;
 import java.io.IOException;
@@ -23,13 +22,13 @@ public class HadoopProcessingPillar implements Processing{
 
     private final Configuration configuration;
     private final String hadoopUser;
-    private String[] hadpopargs;
+    private String[] hadoopArgs;
 
-    public HadoopProcessingPillar(Configuration configuration, String hadoopUser, String... hadpopargs) {
+    public HadoopProcessingPillar(Configuration configuration, String hadoopUser, String... hadoopArgs) {
         this.configuration = configuration;
         this.hadoopUser = hadoopUser;
 
-        this.hadpopargs = hadpopargs;
+        this.hadoopArgs = hadoopArgs;
     }
 
     public void addFileToProcessingNodes(File file) {
@@ -37,7 +36,10 @@ public class HadoopProcessingPillar implements Processing{
         //To change body of implemented methods use File | Settings | File Templates.
     }
 
-    public int invokeProcessingJob(String collectionID, final Tool tool,  String... args) throws IOException, InterruptedException {
+    public int invokeProcessingJob(String collectionID,
+                                   String outputFolder,
+                                   Class<? extends BitrepoTool> toolClass,
+                                   String... args) throws Exception {
         System.setProperty("HADOOP_USER_NAME", hadoopUser);
         UserGroupInformation ugi = UserGroupInformation.createRemoteUser(hadoopUser);
 
@@ -46,9 +48,14 @@ public class HadoopProcessingPillar implements Processing{
         //Libs should be distributed in the other method
         //Then the tool should be invoked here
         ArrayList<String> argsList = new ArrayList<String>();
-        argsList.addAll(Arrays.asList(hadpopargs));
+        argsList.addAll(Arrays.asList(hadoopArgs));
+        argsList.add(collectionID);
+        argsList.add(outputFolder);
         argsList.addAll(Arrays.asList(args));
         final String[] argsComplete = argsList.toArray(new String[argsList.size()]);
+
+        final BitrepoTool tool;
+        tool = toolClass.newInstance();
 
 
         final int[] returnCode = {0};

@@ -1,4 +1,4 @@
-package dk.statsbiblioteket.bitrepository;
+package dk.statsbiblioteket.bitrepository.processing;
 
 import org.apache.hadoop.util.Tool;
 
@@ -16,5 +16,8 @@ public interface Processing {
 
     public void addFileToProcessingNodes(File file);
 
-    public int invokeProcessingJob(String collectionID, Tool tool,String... args) throws IOException, InterruptedException;
+    public int invokeProcessingJob(String collectionID,
+                                   String outputFolder,
+                                   Class<? extends BitrepoTool> toolClass,
+                                   String... args) throws Exception;
 }

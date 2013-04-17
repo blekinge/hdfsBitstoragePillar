@@ -24,10 +24,16 @@
             <version>0.23.6</version>
         </dependency>
         <dependency>
-                    <groupId>org.apache.hadoop</groupId>
-                    <artifactId>hadoop-</artifactId>
-                    <version>0.23.6</version>
-                </dependency>
+            <groupId>org.apache.hadoop</groupId>
+            <artifactId>hadoop-mapreduce-client-core</artifactId>
+            <version>0.23.6</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.hadoop</groupId>
+            <artifactId>hadoop-client</artifactId>
+            <version>0.23.6</version>
+        </dependency>
+
         <dependency>
             <groupId>commons-io</groupId>
             <artifactId>commons-io</artifactId>
