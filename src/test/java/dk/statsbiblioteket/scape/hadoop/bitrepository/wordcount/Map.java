@@ -68,7 +68,11 @@ public class Map extends MapReduceBase implements Mapper<LongWritable, Text, Tex
         }
     }
 
-    public void map(LongWritable key, Text value, OutputCollector<Text, IntWritable> output, Reporter reporter) throws IOException {
+    public void map(
+            LongWritable key, Text value,
+            OutputCollector<Text, IntWritable> output,
+            Reporter reporter)
+            throws IOException {
         String line = (caseSensitive) ? value.toString() : value.toString().toLowerCase();
 
         for (String pattern : patternsToSkip) {
