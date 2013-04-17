@@ -34,39 +34,9 @@ public class Map extends MapReduceBase implements Mapper<LongWritable, Text, Tex
     private Text word = new Text();
 
     private boolean caseSensitive = true;
-    private Set<String> patternsToSkip = new HashSet<String>();
 
     private long numRecords = 0;
     private String inputFile;
-
-    public void configure(JobConf job) {
-        caseSensitive = job.getBoolean("wordcount.case.sensitive", true);
-        inputFile = job.get("map.input.file");
-
-        if (job.getBoolean("wordcount.skip.patterns", false)) {
-            Path[] patternsFiles = new Path[0];
-            try {
-                patternsFiles = DistributedCache.getLocalCacheFiles(job);
-            } catch (IOException ioe) {
-                System.err.println("Caught exception while getting cached files: " + StringUtils.stringifyException(ioe));
-            }
-            for (Path patternsFile : patternsFiles) {
-                parseSkipFile(patternsFile);
-            }
-        }
-    }
-
-    private void parseSkipFile(Path patternsFile) {
-        try {
-            BufferedReader fis = new BufferedReader(new FileReader(patternsFile.toString()));
-            String pattern = null;
-            while ((pattern = fis.readLine()) != null) {
-                patternsToSkip.add(pattern);
-            }
-        } catch (IOException ioe) {
-            System.err.println("Caught exception while parsing the cached file '" + patternsFile + "' : " + StringUtils.stringifyException(ioe));
-        }
-    }
 
     public void map(
             LongWritable key, Text value,
@@ -75,9 +45,6 @@ public class Map extends MapReduceBase implements Mapper<LongWritable, Text, Tex
             throws IOException {
         String line = (caseSensitive) ? value.toString() : value.toString().toLowerCase();
 
-        for (String pattern : patternsToSkip) {
-            line = line.replaceAll(pattern, "");
-        }
 
         StringTokenizer tokenizer = new StringTokenizer(line);
         while (tokenizer.hasMoreTokens()) {
