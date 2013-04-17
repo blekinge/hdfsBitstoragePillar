@@ -18,11 +18,15 @@ import java.util.Iterator;
  * To change this template use File | Settings | File Templates.
  */
 public class Reduce extends MapReduceBase implements Reducer<Text, IntWritable, Text, IntWritable> {
-     public void reduce(Text key, Iterator<IntWritable> values, OutputCollector<Text, IntWritable> output, Reporter reporter) throws IOException {
-       int sum = 0;
-       while (values.hasNext()) {
-         sum += values.next().get();
-       }
-       output.collect(key, new IntWritable(sum));
-     }
-   }
+
+    public void reduce(Text key,
+                       Iterator<IntWritable> values,
+                       OutputCollector<Text, IntWritable> output,
+                       Reporter reporter) throws IOException {
+        int sum = 0;
+        while (values.hasNext()) {
+            sum += values.next().get();
+        }
+        output.collect(key, new IntWritable(sum));
+    }
+}
