@@ -1,11 +1,13 @@
 package dk.statsbiblioteket.scape.hadoop.bitrepository;
 
 import dk.statsbiblioteket.scape.hadoop.bitrepository.wordcount.WordCount;
+import org.apache.commons.io.IOUtils;
 import org.apache.hadoop.conf.Configuration;
 import org.junit.Before;
 import org.junit.Test;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.util.UUID;
 
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -37,6 +39,8 @@ public class HadoopProcessingPillarTest {
 
         File collectionFolder = new File("target/testcoll");
         collectionFolder.mkdirs();
+        File datafile1 = new File(collectionFolder, "datafile1");
+        IOUtils.copyLarge(Thread.currentThread().getContextClassLoader().getResourceAsStream("datafile1"),new FileOutputStream(datafile1));
 
 
         pillar.invokeProcessingJob(collectionFolder.getAbsolutePath(),outputDir.getAbsolutePath(), WordCount.class);
@@ -46,7 +50,7 @@ public class HadoopProcessingPillarTest {
         assertTrue(files.length>0);
         boolean success = false;
         for (String file : files) {
-            if (file.contains("SUCCESS")){
+            if (file.equals("_SUCCESS")){
                 success = true;
             }
         }

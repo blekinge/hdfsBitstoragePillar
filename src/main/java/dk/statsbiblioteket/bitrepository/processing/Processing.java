@@ -16,9 +16,10 @@ public interface Processing {
      * used to distribute jar files to all nodes, before invoking a job
      * @see #invokeProcessingJob(String, String, Class, String...)
      * @param file the file to distribute
+     * @param path the path in the hdfs cluster
      * @throws Exception if anything went wrong
      */
-    public void addFileToProcessingNodes(File file) throws Exception;
+    public void addFileToProcessingNodes(File file, String path) throws Exception;
 
     /**
      * Invoke a tool on a collection in the bitrepository.

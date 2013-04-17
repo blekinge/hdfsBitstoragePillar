@@ -3,13 +3,18 @@ package dk.statsbiblioteket.scape.hadoop.bitrepository;
 import dk.statsbiblioteket.bitrepository.processing.BitrepoTool;
 import dk.statsbiblioteket.bitrepository.processing.Processing;
 import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.filecache.DistributedCache;
+import org.apache.hadoop.fs.FileSystem;
+import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.security.UserGroupInformation;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URI;
 import java.security.PrivilegedExceptionAction;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 /**
  * Created with IntelliJ IDEA.
@@ -23,6 +28,7 @@ public class HadoopProcessingPillar implements Processing{
     private final Configuration configuration;
     private final String hadoopUser;
     private String[] hadoopArgs;
+    private URI filesystemDefaultURI;
 
     public HadoopProcessingPillar(Configuration configuration, String hadoopUser, String... hadoopArgs) {
         this.configuration = configuration;
@@ -31,9 +37,11 @@ public class HadoopProcessingPillar implements Processing{
         this.hadoopArgs = hadoopArgs;
     }
 
-    public void addFileToProcessingNodes(File file) {
-
-        //To change body of implemented methods use File | Settings | File Templates.
+    public void addFileToProcessingNodes(File file, String path) throws IOException, InterruptedException {
+        FileSystem fileSystem = FileSystem.get(filesystemDefaultURI, configuration, hadoopUser);
+        Path destFile = new Path(path, file.getName());
+        fileSystem.copyFromLocalFile(new Path(file.toURI()),new Path(path,file.getName()));
+        DistributedCache.addFileToClassPath(destFile,configuration,fileSystem);
     }
 
     public int invokeProcessingJob(String collectionID,
