@@ -31,6 +31,7 @@ public class HadoopPillarTest {
     @org.junit.Before
     public void setUp() throws Exception {
         hadoopPillar = new HadoopPillar("scape",URI.create("target/"));
+        /*hadoopPillar = new HadoopPillar("scape",new URI("hdfs://zone1.isilon.sblokalnet/"));*/
         testfile = new FileID("testFile","testColl");
         hadoopPillar.storeInTemporaryStore(testfile,Thread.currentThread().getContextClassLoader().getResourceAsStream("datafile1"));
     }
@@ -48,7 +49,10 @@ public class HadoopPillarTest {
         InputStream stream = hadoopPillar.getFileContents(testfile);
         StringWriter writer = new StringWriter();
         IOUtils.copy(stream,writer);
-        assertThat("datafile1",is(writer.toString()));
+        assertThat("datafile1\n" +
+                "datafile1\n" +
+                "or\n" +
+                "datafile1",is(writer.toString()));
 
     }
 
@@ -57,7 +61,10 @@ public class HadoopPillarTest {
         FileStatus status = hadoopPillar.getFileStatus(testfile);
         assertThat(status.getFileID(),is(testfile));
         assertThat(status.isArchived(),is(false));
-        assertThat(status.getFileSize(),is((long)("datafile1".length())));
+        assertThat(status.getFileSize(),is((long)(("datafile1\n" +
+                "datafile1\n" +
+                "or\n" +
+                "datafile1").length())));
     }
 
     @org.junit.Test
@@ -95,7 +102,7 @@ public class HadoopPillarTest {
 
     @org.junit.Test
     public void testMoveToArchive() throws Exception {
-        hadoopPillar.moveToArchive(testfile);
+        boolean result = hadoopPillar.moveToArchive(testfile);
         FileStatus status = hadoopPillar.getFileStatus(testfile);
         assertThat(status.isArchived(),is(true));
 

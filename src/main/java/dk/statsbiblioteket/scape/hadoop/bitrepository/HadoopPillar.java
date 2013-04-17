@@ -4,6 +4,7 @@ import dk.statsbiblioteket.bitrepository.*;
 import org.apache.commons.io.IOUtils;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.*;
+import org.apache.hadoop.fs.FileStatus;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -27,10 +28,10 @@ public class HadoopPillar implements FileStoreImproved {
     private final Path stageDir;
     private final Path archiveDir;
     public HadoopPillar(String user, URI filesystemDefaultURI ) throws IOException, InterruptedException {
-        Configuration conf = new Configuration();
+        Configuration conf = new Configuration(true);
         fileSystem = FileSystem.get(filesystemDefaultURI, conf, user);
 
-        fileSystemRoot = new Path(filesystemDefaultURI);
+        fileSystemRoot = fileSystem.getWorkingDirectory();
         stageDir = new Path("staging");
         archiveDir = new Path("archiving");
     }
@@ -75,9 +76,8 @@ public class HadoopPillar implements FileStoreImproved {
     public Collection<FileID> getAllFileIds(String collectionID) throws IOException {
         ArrayList<FileID> result = new ArrayList<FileID>();
 
-        RemoteIterator<LocatedFileStatus> founds = fileSystem.listFiles(new Path(fileSystemRoot,collectionID), true);
-        while (founds.hasNext()){
-            LocatedFileStatus found = founds.next();
+        FileStatus[] founds = fileSystem.listStatus(new Path[] {new Path(fileSystemRoot, collectionID+"/staging"),new Path(fileSystemRoot, collectionID+"/archiving")});
+        for (FileStatus found : founds) {
             result.add(new FileID(found.getPath().getName(),collectionID));
         }
         return result;
@@ -109,6 +109,8 @@ public class HadoopPillar implements FileStoreImproved {
         if (!fileSystem.exists(stagePath)){
             throw new FileNotFoundException("File "+fileID+" does not exist in the filestore, aborting");
         }
+        fileSystem.mkdirs(finalPath.getParent());
+
         return fileSystem.rename(stagePath, finalPath);
     }
 
