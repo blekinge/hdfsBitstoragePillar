@@ -6,16 +6,29 @@ import java.io.File;
 import java.io.IOException;
 
 /**
- * Created with IntelliJ IDEA.
- * User: abr
- * Date: 4/16/13
- * Time: 1:46 PM
- * To change this template use File | Settings | File Templates.
+ * This is the interface to the Processing subsystem of the bit repository
  */
 public interface Processing {
 
-    public void addFileToProcessingNodes(File file);
 
+    /**
+     * Add a file to the distributed cache, so that all nodes in the cluster have access to it. This method should be
+     * used to distribute jar files to all nodes, before invoking a job
+     * @see #invokeProcessingJob(String, String, Class, String...)
+     * @param file the file to distribute
+     * @throws Exception if anything went wrong
+     */
+    public void addFileToProcessingNodes(File file) throws Exception;
+
+    /**
+     * Invoke a tool on a collection in the bitrepository.
+     * @param collectionID the id of the collection
+     * @param outputFolder the output folder for the results
+     * @param toolClass the toolClass to invoke. This class must be available on all the nodes
+     * @param args the additional args to the tool
+     * @return 0 if the process succeeded, 1 otherwise
+     * @throws Exception if anything went wrong
+     */
     public int invokeProcessingJob(String collectionID,
                                    String outputFolder,
                                    Class<? extends BitrepoTool> toolClass,
