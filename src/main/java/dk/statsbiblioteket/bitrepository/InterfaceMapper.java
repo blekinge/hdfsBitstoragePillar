@@ -38,7 +38,7 @@ public class InterfaceMapper implements FileStore {
                 IOUtils.copyLarge(contents,new FileOutputStream(localFile));
                 contents.close();
             } catch (IOException e) {
-                e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+                throw new RuntimeException("Failed to get file from improved store",e);
             }
         }
         return localFile;
@@ -73,7 +73,7 @@ public class InterfaceMapper implements FileStore {
             }
             return result;
         } catch (IOException e) {
-            return null;
+            throw new RuntimeException("Failed to get info from improved store",e);
         }
     }
 
@@ -95,7 +95,7 @@ public class InterfaceMapper implements FileStore {
             fileStoreImproved.storeInTemporaryStore(new FileID(s2,s),new FileInputStream(localFile));
             fileStoreImproved.moveToArchive(new FileID(s2,s));
         } catch (IOException e) {
-            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+            throw new RuntimeException("Failed to add file to the improved store",e);
         }
     }
 
@@ -107,7 +107,7 @@ public class InterfaceMapper implements FileStore {
             }
             fileStoreImproved.deleteFile(new FileID(s2,s));
         } catch (IOException e) {
-            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+            throw new RuntimeException("Failed to delete the file from improved store",e);
         }
     }
 }
