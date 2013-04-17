@@ -33,21 +33,21 @@ public class WordCount extends  BitrepoTool {
 
     @Override
     public int run(String collectionID, String outputFolder, String... args) throws Exception {
-      JobConf conf = new JobConf(getConf(), WordCount.class);
-      conf.setJobName(getToolname());
+        JobConf conf = new JobConf(getConf(), WordCount.class);
+        conf.setJobName(getToolname());
 
-      conf.setOutputKeyClass(Text.class);
-      conf.setOutputValueClass(IntWritable.class);
+        FileInputFormat.setInputPaths(conf, new Path(collectionID));
+        conf.setInputFormat(TextInputFormat.class);
 
-      conf.setMapperClass(Map.class);
-      conf.setCombinerClass(Reduce.class);
-      conf.setReducerClass(Reduce.class);
+        conf.setMapperClass(Map.class);
+        conf.setCombinerClass(Reduce.class);
+        conf.setReducerClass(Reduce.class);
 
-      conf.setInputFormat(TextInputFormat.class);
-      conf.setOutputFormat(TextOutputFormat.class);
+        conf.setOutputKeyClass(Text.class);
+        conf.setOutputValueClass(IntWritable.class);
+        conf.setOutputFormat(TextOutputFormat.class);
 
-      FileInputFormat.setInputPaths(conf, new Path(collectionID));
-      FileOutputFormat.setOutputPath(conf, new Path(outputFolder));
+        FileOutputFormat.setOutputPath(conf, new Path(outputFolder));
 
         RunningJob result = JobClient.runJob(conf);
         if (result.isSuccessful()){
